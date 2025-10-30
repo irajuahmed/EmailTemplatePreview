@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Preview Modal (User Input)</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        /* Modal sizing */
+        #emailPreviewModal .modal-dialog {
+            max-width: 95%;
+            width: 95%;
+        }
+
+        #emailPreviewModal .modal-body {
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        /* Fullscreen mode */
+        .fullscreen-modal {
+            max-width: 100% !important;
+            width: 100% !important;
+            height: 100vh !important;
+            margin: 0;
+        }
+
+        .fullscreen-modal .modal-content {
+            height: 100vh;
+            border-radius: 0;
+        }
+
+        /* Buttons (Expand + Close) */
+        #btnExpandModal,
+        #btnCloseModal {
+            width: 36px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            border-color: #c4e4e9;
+            color: #c4e4e9;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        #btnExpandModal:hover,
+        #btnCloseModal:hover {
+            background-color: #c4e4e9;
+            color: #fff;
+        }
+
+        /* Preview layout */
+        #previewTemplatesContainer {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .email-preview-box {
+            flex: 1 1 48%;
+            min-width: 300px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .rtl {
+            direction: rtl;
+            text-align: right;
+        }
+    </style>
+</head>
+
+<body class="bg-light p-5">
+
+    <div class="container">
+        <h3 class="text-center mb-4">📧 Email Preview Generator</h3>
+
+        <!-- Input Form -->
+        <div class="card shadow-sm p-4 mb-5">
+            <div class="mb-3">
+                <label for="emailSubject" class="form-label fw-semibold">Email Subject</label>
+                <input type="text" class="form-control" id="emailSubject" placeholder="Enter email subject">
+            </div>
+
+            <div class="mb-3">
+                <label for="bodyArabic" class="form-label fw-semibold">Arabic Email Body</label>
+                <textarea id="bodyArabic" class="form-control" rows="4" placeholder="اكتب نص البريد الإلكتروني بالعربية هنا"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="bodyEnglish" class="form-label fw-semibold">English Email Body</label>
+                <textarea id="bodyEnglish" class="form-control" rows="4" placeholder="Write the English email body here"></textarea>
+            </div>
+
+            <div class="text-center">
+                <button id="btnPreviewEmail" class="btn btn-primary px-5">Preview Email</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Preview Modal -->
+    <div class="modal fade" id="emailPreviewModal" tabindex="-1" aria-labelledby="emailPreviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <!-- Header -->
+                <div class="modal-header d-flex justify-content-between align-items-center position-relative">
+                    <div class="flex-grow-1 text-start">
+                        <p class="modal-title fw-semibold m-0" id="emailPreviewModalLabel">Email Preview</p>
+                    </div>
+
+                    <button type="button" id="btnExpandModal"
+                        class="btn btn-sm btn-outline-secondary position-absolute top-50 start-50 translate-middle">
+                        ⛶
+                    </button>
+
+                    <button type="button" id="btnCloseModal"
+                        class="btn btn-sm btn-outline-secondary ms-auto"
+                        data-bs-dismiss="modal" aria-label="Close">
+                        X
+                    </button>
+                </div>
+
+                <!-- Body -->
+                <div class="modal-body bg-white" style="font-family:'Segoe UI', Tahoma, sans-serif; color:#333;">
+                    <div id="previewTemplatesContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS + jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            // Preview Button
+            $("#btnPreviewEmail").on("click", function () {
+                var subject = $("#emailSubject").val().trim();
+                var bodyAr = $("#bodyArabic").val().trim();
+                var bodyEn = $("#bodyEnglish").val().trim();
+
+                if (!subject || !bodyAr) {
+                    alert("Please enter at least the subject and Arabic body.");
+                    return;
+                }
+
+                var sender = "Mail Notification System";
+                var recipients = "dummyuser1@domain.com, dummyuser2@domain.com";
+                var date = new Date().toLocaleString() + " (Dummy)";
+
+                function buildEmailTemplate(subjectText, bodyText, isArabic = false) {
+                    return `
+                        <div class="border rounded p-3 shadow-sm mb-4 ${isArabic ? 'rtl' : ''}">
+                            <h5 class="fw-bold mb-3">${subjectText || "(No Subject)"}</h5>
+                            <div class="border-bottom pb-2 mb-3" style="font-size:14px;">
+                                <div class="fw-semibold">${sender}</div>
+                                <div>${date}</div>
+                                <div><strong>To:</strong> ${recipients}</div>
+                            </div>
+                            <div style="font-size:15px; line-height:1.6;">
+                                ${bodyText || "<i>(No message content)</i>"}
+                                <br><br>
+                                <p>
+                                    Regards,<br>
+                                    Mail Notification System<br>
+                                    IT Dept<br>
+                                    Your Company Name<br>
+                                </p>
+                            </div>
+                        </div>`;
+                }
+
+                // Build HTML for both templates
+                var html = `
+                    <div class="email-preview-box">
+                        <h6 class="fw-bold text-primary mb-2 text-center">Arabic Template</h6>
+                        ${buildEmailTemplate(subject, bodyAr, true)}
+                    </div>
+                `;
+
+                if (bodyEn) {
+                    html += `
+                        <div class="email-preview-box">
+                            <h6 class="fw-bold text-primary mb-2 text-center">English Template</h6>
+                            ${buildEmailTemplate(subject, bodyEn, false)}
+                        </div>
+                    `;
+                }
+
+                $("#previewTemplatesContainer").html(html);
+                $("#emailPreviewModal").modal("show");
+            });
+
+            // Expand / shrink modal toggle
+            $(document).on("click", "#btnExpandModal", function () {
+                $("#emailPreviewModal .modal-dialog").toggleClass("fullscreen-modal");
+                $(this).text($(this).text() === "⛶" ? "🗗" : "⛶");
+            });
+        });
+    </script>
+</body>
+</html>
